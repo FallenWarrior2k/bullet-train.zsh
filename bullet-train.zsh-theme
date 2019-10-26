@@ -95,6 +95,9 @@ fi
 if [ ! -n "${BULLETTRAIN_VIRTUALENV_PREFIX+1}" ]; then
   BULLETTRAIN_VIRTUALENV_PREFIX=🐍
 fi
+if [ ! -n "${BULLETTRAIN_VIRTUALENV_PYENV_ONLY_ONE+1}" ]; then
+  BULLETTRAIN_VIRTUALENV_PYENV_ONLY_ONE=false
+fi
 
 # NVM
 if [ ! -n "${BULLETTRAIN_NVM_BG+1}" ]; then
@@ -584,8 +587,14 @@ prompt_virtualenv() {
   if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
     prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(basename $virtualenv_path)"
   elif which pyenv &> /dev/null; then
-    if [[ "$(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')" != "system" ]]; then
-      prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
+    if [[ "$BULLETTRAIN_VIRTUALENV_PYENV_ONLY_ONE" == "false" ]]; then
+      pyenv_version="$(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
+    else
+      pyenv_version="$(pyenv version | head -n 1 | sed -e 's/ (set.*$//' | tr -d '\n')"
+    fi
+
+    if [[ "$pyenv_version" != "system" ]]; then
+      prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $pyenv_version"
     fi
   fi
 }
